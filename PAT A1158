@@ -1,0 +1,74 @@
+#include<iostream>
+#include<vector>
+#include<set>
+#include<map>
+#include<algorithm>
+#include<math.h>
+using namespace std;
+int K, N, M;
+int g[1001][1001], vis[1001];
+vector<int>gang[1001];
+set<int>caller, mem;
+vector<set<int>>ans;
+struct people{
+	map<int, int>dif;
+	bool sus = false;
+	set<int>back;
+}p[1001];
+void dfs(int v, set<int>&t) {
+	vis[v] = true;
+	t.insert(v);
+	for (int each : gang[v]) 
+		if (!vis[each])dfs(each ,t);
+}
+bool cmp(set<int>& s1, set<int>& s2) {
+	return *s1.begin() < *s2.begin();
+}
+int main() {
+	cin >> K >> N >> M;
+	for (int i = 1; i <= M; i++) {
+		int a, b, d;
+		cin >> a >> b >> d;
+		caller.insert(a);
+		g[a][b] = d;
+		p[a].dif[b] += d;
+		if (g[b][a] != 0) p[b].back.insert(a);
+	}
+	for (auto it = caller.begin(); it != caller.end(); it++) {
+		if (floor(p[*it].back.size()*1.0 / p[*it].dif.size()*1.0 * 10)>2)break;
+		int cnt = 0;
+		for (auto it2 = p[*it].dif.begin(); it2 != p[*it].dif.end(); it2++) 
+			if (it2->second <= 5)cnt++;
+		if (cnt > K) {
+			p[*it].sus = true;
+			mem.insert(*it);
+		}
+	}
+	for (auto it = caller.begin(); it != caller.end(); it++) {
+		for (auto it2 = p[*it].dif.begin(); it2 != p[*it].dif.end(); it2++) {
+			if (g[*it][it2->first] != 0 && g[it2->first][*it] !=0  &&
+				p[*it].sus == true && p[it2->first].sus == true) {
+				gang[*it].push_back(it2->first);
+				gang[it2->first].push_back(*it);
+			}
+		}
+	}
+	for (auto it = mem.begin(); it != mem.end(); it++) {
+		if (!vis[*it]) {
+			set<int>t_ans;
+			dfs(*it, t_ans);
+			ans.push_back(t_ans);
+		}
+	}
+	if (!ans.size())cout << "None";
+	else {
+		sort(ans.begin(), ans.end(), cmp);
+		for (int i = 0; i < ans.size(); i++) {
+			for (auto it = ans[i].begin(); it != ans[i].end(); it++) {
+				if (it != ans[i].begin())cout << " ";
+				cout << *it;
+			}
+			cout << endl;
+		}
+	}
+}

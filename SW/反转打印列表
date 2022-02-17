@@ -1,0 +1,13 @@
+class Solution {//反转打印链表
+public:
+    vector<int>ans;
+    void dfs(ListNode*head){
+        if(head==NULL)return;//递归边界，最后一个节点。
+        dfs(head->next);//逐渐到达最后一个节点
+        ans.push_back(head->val);//递归归来时将节点放入容器
+    }
+    vector<int> printListFromTailToHead(ListNode* head) {
+        dfs(head);
+        return ans;
+    }
+};
